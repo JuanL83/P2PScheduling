@@ -14,8 +14,10 @@ $(EXEC): $(OBJECTS)
 	$(CC) $(CCOPTS) -o $@ $^
 
 test: scheduler
-	- ./scheduler -fifo
-	- ./scheduler -rr
+	- make clean
+	- make
+	- ./scheduler -fifo -test
+	- ./scheduler -rr -test
 
 clean:
 	- $(RM) $(EXEC)
