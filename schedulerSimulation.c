@@ -34,10 +34,6 @@ int main(int argc, char *argv[]){
     }
     queue->sched_ops.init_sched_queue(queue, QUEUE_SIZE);
 
-    if(!strcmp(argv[2], "-test")){
-	tests(queue, argv);
-	return EXIT_SUCCESS;
-    }
 
     // create threads and assign their correponding function
     if(pthread_create(&long_term_scheduler_thread, NULL, long_term_scheduler, (void*)queue)){

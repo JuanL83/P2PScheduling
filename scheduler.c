@@ -17,26 +17,49 @@ FILE *completionTimes;
 
 void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
+	sem_init(&queue->sched_queue_sem,0,queue_size);
+	sem_init(&queue->ready_sem,0,list_size(&queue->lst));
+	sem_init(&queue->cpu_sem,0,1);
+	pthread_mutex_init(&queue->lock,NULL);
+	list_init(&queue->lst);
 	// TODO initialize semaphores and mutex
 }
 
 void destroy_sched_queue(sched_queue_t *queue)
 {
+	sem_destroy(&queue->sched_queue_sem);
+	sem_destroy(&queue->ready_sem);
+	sem_destroy(&queue->cpu_sem);
+	pthread_mutex_destroy(&queue->lock);
+
+	list_elem_t *lelt;
+	for(lelt = list_get_head(&queue->lst); lelt != NULL; lelt = lelt->next)
+		list_remove_elem(&queue->lst,lelt);
+
+	//while(list_get_head(&queue->lst)){
+	//list_remove_elem(&queue->lst,list_get_head(&queue->lst));
+	//}
+
     // TODO destroy semaphores and mutex
 }
 
 void signal_process(process_t *info)
 {
+	sem_post(&info->cpu_sem);	
+
     // TODO signal the process that the CPU is free
 }
 
 void wait_for_process(sched_queue_t *queue)
 {
+	sem_wait(&queue->cpu_sem);
     // TODO make the dispatcher wait until CPU is available
 }
 
 void wait_for_queue(sched_queue_t *queue)
 {
+	sem_wait(&queue->ready_sem);
+
     // TODO make the queue wait until there are ready processes in the queue
 }
 
@@ -46,12 +69,16 @@ process_t *next_process_fifo(sched_queue_t *queue)
 	list_elem_t *elt = NULL;
 
     // TODO access queue with mutual exclusion
-	
+	pthread_mutex_lock(&queue->lock);
     // TODO get the front element of the queue
-	
+	elt = list_get_head(&queue->lst);
     // TODO if the element is not NULL remove the element and retrieve the process data
 	if (elt != NULL) {
+		list_remove_elem(&queue->lst, elt);
+	
 		
+
+		time_slice = info->serviceTime;
 	}
 
 
