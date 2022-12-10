@@ -18,9 +18,9 @@ FILE *completionTimes;
 void init_sched_queue(sched_queue_t *queue, int queue_size)
 {
 	sem_init(&queue->sched_queue_sem,0,queue_size);
-	sem_init(&queue->ready_sem,0,list_size(&queue->lst));
+	sem_init(&queue->ready_sem,0,0);
 	sem_init(&queue->cpu_sem,0,1);
-	pthread_mutex_init(&queue->lock,NULL);
+	pthread_mutex_init(&queue->lock, NULL);
 	list_init(&queue->lst);
 	// TODO initialize semaphores and mutex
 }
@@ -145,7 +145,7 @@ void *process_function(void *arg){
         // TODO else record the info of the process in the completionTimes file, and signal a new empty slot in the queue
 		// record the info as: processID arrivalTime serviceTime completionTime
         else{
-		fprintf(completionTimes,"%d %d %f %f", info->pid, info->arrivalTime, info->serviceTime, global_time);
+		fprintf(completionTimes,"pid: %d Arrival Time: %d Service Time: %f Global Time: %f\n", info->pid, info->arrivalTime, info->serviceTime, global_time);
             	fprintf(stdout, "Teminating process %d\n", info->pid);
 	    	sem_post(&info->queue->sched_queue_sem);
 	    	sem_wait(&info->queue->ready_sem);
@@ -173,7 +173,7 @@ void *short_term_scheduler(void *arg){
         process_t *p = sched_ops->next_process(queue);
 
         // TODO If there is at least one process in the queue, execute it for time_slice amount
-        if (list_size(&queue->lst) > 0){
+        if (p != NULL ){
             fprintf(stdout, "Start execution of process %d\n", p->pid);
             // TODO activate the process
          	sched_ops->signal_process(p);   
